@@ -27,8 +27,19 @@ jobs:
 
       - run: flutter build windows --release
 
+      - name: List build output
+        run: |
+          echo "=== build/windows/ contents ==="
+          Get-ChildItem -Recurse build/windows | Select-Object FullName, Length
+          echo "=== Looking for .exe ==="
+          Get-ChildItem -Recurse -Filter *.exe build/windows | Select-Object FullName, Length
+        shell: pwsh
+
       - uses: actions/upload-artifact@v4
         if: success()
         with:
           name: windows-build
-          path: build/windows/**
+          path: |
+            build/windows/runner/Release/*.exe
+            build/windows/runner/Release/*.dll
+            build/windows/runner/Release/data/**
