@@ -25,8 +25,14 @@ jobs:
 
       - run: flutter build windows --release
 
-      - name: Build MSI Installer
-        run: dart run msix:create --msi
+      - name: Install WiX
+        run: dotnet tool install --global wix --version 5.0.2
+
+      - name: Build MSI
+        run: |
+          $env:Path += ";$env:USERPROFILE\.dotnet\tools"
+          wix harvest folder -d build/windows/x64/runner/Release -g AppFiles -o files.wxs
+          wix build windows/installer.wxs files.wxs -arch x64 -out yum-inventory.msi
 
       - uses: actions/upload-artifact@v4
         if: success()
