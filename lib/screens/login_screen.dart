@@ -128,14 +128,14 @@ class _LoginScreenState extends State<LoginScreen>
                             gradient: LinearGradient(
                               colors: [
                                 AppTheme.cardColor.withValues(alpha: 0.95),
-                                AppTheme.cardColor.withValues(alpha: 0.8),
+                                const Color(0xFF0D2E1A).withValues(alpha: 0.85),
                               ],
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight,
                             ),
                             borderRadius: BorderRadius.circular(24),
                             border: Border.all(
-                              color: Colors.white.withValues(alpha: 0.06),
+                              color: AppTheme.primaryColor.withValues(alpha: 0.15),
                             ),
                           ),
                           child: Form(
@@ -187,7 +187,7 @@ class _LoginScreenState extends State<LoginScreen>
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: AppTheme.primaryColor.withValues(alpha: 0.3),
+            color: AppTheme.primaryColor.withValues(alpha: 0.4),
             blurRadius: 20,
             offset: const Offset(0, 8),
           ),
@@ -368,18 +368,18 @@ class _AnimatedBackgroundState extends State<_AnimatedBackground>
             gradient: LinearGradient(
               colors: [
                 Color.lerp(
-                  const Color(0xFF0D0D1A),
-                  const Color(0xFF1A0A2E),
+                  const Color(0xFF0A1A0D),
+                  const Color(0xFF0A2E1A),
                   (sin(_controller.value * pi * 2) + 1) / 2,
                 )!,
                 Color.lerp(
-                  const Color(0xFF0A0A1A),
-                  const Color(0xFF0D1B2A),
+                  const Color(0xFF0D1A1A),
+                  const Color(0xFF0A1A2E),
                   (cos(_controller.value * pi * 2) + 1) / 2,
                 )!,
                 Color.lerp(
-                  const Color(0xFF050510),
-                  const Color(0xFF100A1A),
+                  const Color(0xFF051008),
+                  const Color(0xFF00101A),
                   (sin(_controller.value * pi * 2 + 1) + 1) / 2,
                 )!,
               ],
