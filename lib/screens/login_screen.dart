@@ -11,7 +11,7 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen>
     with SingleTickerProviderStateMixin {
-  final _emailController = TextEditingController();
+  final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   late AnimationController _animationController;
@@ -19,6 +19,13 @@ class _LoginScreenState extends State<LoginScreen>
   late Animation<Offset> _slideAnimation;
   bool _isLoading = false;
   bool _obscurePassword = true;
+  String? _errorMessage;
+
+  static const _users = {
+    'test1': '1234',
+    'test2': '1234',
+    'test3': '1234',
+  };
 
   @override
   void initState() {
@@ -47,7 +54,7 @@ class _LoginScreenState extends State<LoginScreen>
 
   @override
   void dispose() {
-    _emailController.dispose();
+    _usernameController.dispose();
     _passwordController.dispose();
     _animationController.dispose();
     super.dispose();
@@ -55,13 +62,19 @@ class _LoginScreenState extends State<LoginScreen>
 
   void _handleLogin() {
     if (_formKey.currentState!.validate()) {
-      setState(() => _isLoading = true);
-      Future.delayed(const Duration(seconds: 2), () {
-        if (mounted) {
+      setState(() {
+        _isLoading = true;
+        _errorMessage = null;
+      });
+      Future.delayed(const Duration(seconds: 1), () {
+        if (!mounted) return;
+        final username = _usernameController.text.trim();
+        final password = _passwordController.text;
+        if (_users.containsKey(username) && _users[username] == password) {
           setState(() => _isLoading = false);
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: const Text('Login successful!'),
+              content: Text('Welcome, $username!'),
               backgroundColor: AppTheme.primaryColor,
               behavior: SnackBarBehavior.floating,
               shape: RoundedRectangleBorder(
@@ -69,6 +82,11 @@ class _LoginScreenState extends State<LoginScreen>
               ),
             ),
           );
+        } else {
+          setState(() {
+            _isLoading = false;
+            _errorMessage = 'Invalid username or password';
+          });
         }
       });
     }
@@ -131,15 +149,15 @@ class _LoginScreenState extends State<LoginScreen>
                                 const SizedBox(height: 8),
                                 _buildSubtitle(),
                                 const SizedBox(height: 36),
-                                _buildEmailField(),
+                                _buildUsernameField(),
                                 const SizedBox(height: 20),
                                 _buildPasswordField(),
-                                const SizedBox(height: 12),
-                                _buildForgotPassword(),
+                                if (_errorMessage != null) ...[
+                                  const SizedBox(height: 12),
+                                  _buildError(),
+                                ],
                                 const SizedBox(height: 28),
                                 _buildLoginButton(),
-                                const SizedBox(height: 24),
-                                _buildSignUpLink(),
                               ],
                             ),
                           ),
@@ -205,19 +223,17 @@ class _LoginScreenState extends State<LoginScreen>
     );
   }
 
-  Widget _buildEmailField() {
+  Widget _buildUsernameField() {
     return TextFormField(
-      controller: _emailController,
-      keyboardType: TextInputType.emailAddress,
+      controller: _usernameController,
       style: const TextStyle(color: Colors.white, fontSize: 15),
       decoration: const InputDecoration(
-        labelText: 'Email',
-        hintText: 'Enter your email',
-        prefixIcon: Icon(Icons.email_outlined),
+        labelText: 'Username',
+        hintText: 'Enter your username',
+        prefixIcon: Icon(Icons.person_outlined),
       ),
       validator: (value) {
-        if (value == null || value.isEmpty) return 'Please enter your email';
-        if (!value.contains('@')) return 'Please enter a valid email';
+        if (value == null || value.isEmpty) return 'Please enter your username';
         return null;
       },
     );
@@ -242,29 +258,33 @@ class _LoginScreenState extends State<LoginScreen>
       ),
       validator: (value) {
         if (value == null || value.isEmpty) return 'Please enter your password';
-        if (value.length < 6) return 'Password must be at least 6 characters';
         return null;
       },
     );
   }
 
-  Widget _buildForgotPassword() {
-    return Align(
-      alignment: Alignment.centerRight,
-      child: TextButton(
-        onPressed: () {},
-        style: TextButton.styleFrom(
-          padding: EdgeInsets.zero,
-          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+  Widget _buildError() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        color: AppTheme.errorColor.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(
+          color: AppTheme.errorColor.withValues(alpha: 0.3),
         ),
-        child: Text(
-          'Forgot Password?',
-          style: TextStyle(
-            color: AppTheme.accentColor.withValues(alpha: 0.8),
-            fontSize: 13,
-            fontWeight: FontWeight.w500,
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.error_outline, color: AppTheme.errorColor, size: 20),
+          const SizedBox(width: 10),
+          Text(
+            _errorMessage!,
+            style: TextStyle(
+              color: AppTheme.errorColor,
+              fontSize: 13,
+            ),
           ),
-        ),
+        ],
       ),
     );
   }
@@ -312,35 +332,6 @@ class _LoginScreenState extends State<LoginScreen>
     );
   }
 
-  Widget _buildSignUpLink() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Text(
-          "Don't have an account? ",
-          style: TextStyle(
-            color: Colors.white.withValues(alpha: 0.4),
-            fontSize: 14,
-          ),
-        ),
-        TextButton(
-          onPressed: () {},
-          style: TextButton.styleFrom(
-            padding: EdgeInsets.zero,
-            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-          ),
-          child: const Text(
-            'Sign Up',
-            style: TextStyle(
-              color: AppTheme.primaryColor,
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
 }
 
 class _AnimatedBackground extends StatefulWidget {
