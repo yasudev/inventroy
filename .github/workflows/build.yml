@@ -56,10 +56,14 @@ jobs:
 
       - run: flutter build windows --release
 
+      - name: Debug build output
+        run: Get-ChildItem -Recurse -Path build/windows/runner/Release | Select-Object FullName
+        shell: pwsh
+
       - uses: actions/upload-artifact@v4
         with:
           name: windows-build
-          path: build/windows/runner/Release/
+          path: build/windows/runner/Release/**
 
   create-release:
     name: Create GitHub Release
