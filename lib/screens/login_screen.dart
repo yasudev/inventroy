@@ -127,15 +127,15 @@ class _LoginScreenState extends State<LoginScreen>
                           decoration: BoxDecoration(
                             gradient: LinearGradient(
                               colors: [
-                                AppTheme.cardColor.withValues(alpha: 0.95),
-                                const Color(0xFF0D2E1A).withValues(alpha: 0.85),
+                                AppTheme.cardColor.withValues(alpha: 0.96),
+                                const Color(0xFF151528).withValues(alpha: 0.92),
                               ],
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight,
                             ),
                             borderRadius: BorderRadius.circular(24),
                             border: Border.all(
-                              color: AppTheme.primaryColor.withValues(alpha: 0.15),
+                              color: Colors.white.withValues(alpha: 0.06),
                             ),
                           ),
                           child: Form(
@@ -144,20 +144,22 @@ class _LoginScreenState extends State<LoginScreen>
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 _buildLogo(),
-                                const SizedBox(height: 32),
+                                const SizedBox(height: 28),
                                 _buildTitle(),
-                                const SizedBox(height: 8),
+                                const SizedBox(height: 6),
                                 _buildSubtitle(),
-                                const SizedBox(height: 36),
+                                const SizedBox(height: 32),
                                 _buildUsernameField(),
-                                const SizedBox(height: 20),
+                                const SizedBox(height: 18),
                                 _buildPasswordField(),
                                 if (_errorMessage != null) ...[
                                   const SizedBox(height: 12),
                                   _buildError(),
                                 ],
-                                const SizedBox(height: 28),
+                                const SizedBox(height: 24),
                                 _buildLoginButton(),
+                                const SizedBox(height: 20),
+                                _buildFooter(),
                               ],
                             ),
                           ),
@@ -187,7 +189,7 @@ class _LoginScreenState extends State<LoginScreen>
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: AppTheme.primaryColor.withValues(alpha: 0.4),
+            color: AppTheme.primaryColor.withValues(alpha: 0.25),
             blurRadius: 20,
             offset: const Offset(0, 8),
           ),
@@ -203,7 +205,7 @@ class _LoginScreenState extends State<LoginScreen>
 
   Widget _buildTitle() {
     return const Text(
-      'Welcome Back',
+      'Yum Inventory',
       style: TextStyle(
         fontSize: 28,
         fontWeight: FontWeight.bold,
@@ -215,9 +217,9 @@ class _LoginScreenState extends State<LoginScreen>
 
   Widget _buildSubtitle() {
     return Text(
-      'Sign in to continue to your inventory',
+      'Sign in to manage your inventory',
       style: TextStyle(
-        fontSize: 15,
+        fontSize: 14,
         color: Colors.white.withValues(alpha: 0.5),
       ),
     );
@@ -285,6 +287,17 @@ class _LoginScreenState extends State<LoginScreen>
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildFooter() {
+    return Text(
+      'developed by yasu solutions',
+      style: TextStyle(
+        fontSize: 11,
+        color: Colors.white.withValues(alpha: 0.3),
+        letterSpacing: 0.5,
       ),
     );
   }
@@ -368,18 +381,18 @@ class _AnimatedBackgroundState extends State<_AnimatedBackground>
             gradient: LinearGradient(
               colors: [
                 Color.lerp(
-                  const Color(0xFF0A1A0D),
-                  const Color(0xFF0A2E1A),
+                  const Color(0xFF0F0F1A),
+                  const Color(0xFF1A0F2E),
                   (sin(_controller.value * pi * 2) + 1) / 2,
                 )!,
                 Color.lerp(
-                  const Color(0xFF0D1A1A),
+                  const Color(0xFF0F0A1A),
                   const Color(0xFF0A1A2E),
                   (cos(_controller.value * pi * 2) + 1) / 2,
                 )!,
                 Color.lerp(
-                  const Color(0xFF051008),
-                  const Color(0xFF00101A),
+                  const Color(0xFF0A0A14),
+                  const Color(0xFF14101A),
                   (sin(_controller.value * pi * 2 + 1) + 1) / 2,
                 )!,
               ],
