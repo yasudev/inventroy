@@ -40,6 +40,6 @@ jobs:
         with:
           name: windows-build
           path: |
-            build/windows/runner/Release/*.exe
-            build/windows/runner/Release/*.dll
-            build/windows/runner/Release/data/**
+            build/windows/x64/runner/Release/*.exe
+            build/windows/x64/runner/Release/*.dll
+            build/windows/x64/runner/Release/data/**
