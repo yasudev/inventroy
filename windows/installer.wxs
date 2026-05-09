@@ -4,15 +4,11 @@
     <MajorUpgrade DowngradeErrorMessage="A newer version is already installed." />
     <MediaTemplate EmbedCab="yes" />
 
-    <Directory Id="ProgramFiles6432Folder">
+    <StandardDirectory Id="ProgramFiles6432Folder">
       <Directory Id="ManufacturerFolder" Name="Yasu Solutions">
         <Directory Id="INSTALLFOLDER" Name="Yum Inventory" />
       </Directory>
-    </Directory>
-
-    <DirectoryRef Id="INSTALLFOLDER">
-      <Component GroupRef="AppFiles" />
-    </DirectoryRef>
+    </StandardDirectory>
 
     <Feature Id="MainFeature">
       <ComponentGroupRef Id="AppFiles" />
