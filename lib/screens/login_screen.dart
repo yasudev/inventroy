@@ -17,6 +17,7 @@ class _LoginScreenState extends State<LoginScreen>
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
+  late Animation<double> _scaleAnimation;
   bool _isLoading = false;
   bool _obscurePassword = true;
   String? _errorMessage;
@@ -32,21 +33,27 @@ class _LoginScreenState extends State<LoginScreen>
     super.initState();
     _animationController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1500),
+      duration: const Duration(milliseconds: 1200),
     );
     _fadeAnimation = Tween<double>(begin: 0, end: 1).animate(
       CurvedAnimation(
         parent: _animationController,
-        curve: const Interval(0, 0.6, curve: Curves.easeOut),
+        curve: const Interval(0, 0.5, curve: Curves.easeOut),
       ),
     );
     _slideAnimation = Tween<Offset>(
-      begin: const Offset(0, 0.1),
+      begin: const Offset(0, 0.08),
       end: Offset.zero,
     ).animate(
       CurvedAnimation(
         parent: _animationController,
-        curve: const Interval(0.2, 0.8, curve: Curves.easeOutCubic),
+        curve: const Interval(0.1, 0.7, curve: Curves.easeOutCubic),
+      ),
+    );
+    _scaleAnimation = Tween<double>(begin: 0.95, end: 1).animate(
+      CurvedAnimation(
+        parent: _animationController,
+        curve: const Interval(0, 0.5, curve: Curves.easeOut),
       ),
     );
     _animationController.forward();
@@ -75,10 +82,10 @@ class _LoginScreenState extends State<LoginScreen>
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('Welcome, $username!'),
-              backgroundColor: AppTheme.primaryColor,
+              backgroundColor: AppTheme.successColor,
               behavior: SnackBarBehavior.floating,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: BorderRadius.circular(12),
               ),
             ),
           );
@@ -99,68 +106,79 @@ class _LoginScreenState extends State<LoginScreen>
         builder: (context, constraints) {
           final isDesktop = constraints.maxWidth > 900;
           final isTablet = constraints.maxWidth > 600 && constraints.maxWidth <= 900;
+          final isMobile = constraints.maxWidth <= 600;
           final cardWidth = isDesktop
-              ? 420.0
+              ? 440.0
               : isTablet
-                  ? 380.0
+                  ? 400.0
                   : constraints.maxWidth * 0.92;
+          final cardHorizontalPadding = isDesktop ? 48.0 : (isTablet ? 40.0 : 32.0);
 
           return Stack(
             children: [
               _AnimatedBackground(),
+              ..._buildDecorativeCircles(constraints),
               SafeArea(
                 child: Center(
                   child: SingleChildScrollView(
                     padding: EdgeInsets.symmetric(
-                      horizontal: isDesktop ? 0 : 24,
+                      horizontal: isMobile ? 16 : 24,
                       vertical: 24,
                     ),
                     child: FadeTransition(
                       opacity: _fadeAnimation,
                       child: SlideTransition(
                         position: _slideAnimation,
-                        child: Container(
-                          width: cardWidth,
-                          padding: EdgeInsets.all(
-                            isDesktop ? 40 : 28,
-                          ),
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [
-                                AppTheme.cardColor.withValues(alpha: 0.96),
-                                const Color(0xFF151528).withValues(alpha: 0.92),
-                              ],
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
+                        child: ScaleTransition(
+                          scale: _scaleAnimation,
+                          child: Container(
+                            width: cardWidth,
+                            padding: EdgeInsets.symmetric(
+                              horizontal: cardHorizontalPadding,
+                              vertical: isDesktop ? 48 : 40,
                             ),
-                            borderRadius: BorderRadius.circular(24),
-                            border: Border.all(
-                              color: Colors.white.withValues(alpha: 0.06),
-                            ),
-                          ),
-                          child: Form(
-                            key: _formKey,
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                _buildLogo(),
-                                const SizedBox(height: 28),
-                                _buildTitle(),
-                                const SizedBox(height: 6),
-                                _buildSubtitle(),
-                                const SizedBox(height: 32),
-                                _buildUsernameField(),
-                                const SizedBox(height: 18),
-                                _buildPasswordField(),
-                                if (_errorMessage != null) ...[
-                                  const SizedBox(height: 12),
-                                  _buildError(),
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [
+                                  Colors.white.withValues(alpha: 0.08),
+                                  Colors.white.withValues(alpha: 0.03),
                                 ],
-                                const SizedBox(height: 24),
-                                _buildLoginButton(),
-                                const SizedBox(height: 20),
-                                _buildFooter(),
-                              ],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              ),
+                              borderRadius: BorderRadius.circular(28),
+                              border: Border.all(
+                                color: Colors.white.withValues(alpha: 0.08),
+                              ),
+                            ),
+                            child: Form(
+                              key: _formKey,
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  _buildLogo(),
+                                  const SizedBox(height: 28),
+                                  _buildTitle(),
+                                  const SizedBox(height: 8),
+                                  _buildSubtitle(),
+                                  const SizedBox(height: 36),
+                                  _buildUsernameField(),
+                                  const SizedBox(height: 18),
+                                  _buildPasswordField(),
+                                  if (_errorMessage != null) ...[
+                                    const SizedBox(height: 14),
+                                    _buildError(),
+                                  ],
+                                  const SizedBox(height: 8),
+                                  _buildForgotPassword(),
+                                  const SizedBox(height: 24),
+                                  _buildLoginButton(),
+                                  const SizedBox(height: 24),
+                                  _buildDivider(),
+                                  const SizedBox(height: 20),
+                                  _buildFooter(),
+                                ],
+                              ),
                             ),
                           ),
                         ),
@@ -176,29 +194,84 @@ class _LoginScreenState extends State<LoginScreen>
     );
   }
 
+  List<Widget> _buildDecorativeCircles(BoxConstraints constraints) {
+    return [
+      Positioned(
+        top: -60,
+        right: -60,
+        child: Container(
+          width: 200,
+          height: 200,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            gradient: RadialGradient(
+              colors: [
+                AppTheme.primaryColor.withValues(alpha: 0.15),
+                AppTheme.primaryColor.withValues(alpha: 0),
+              ],
+            ),
+          ),
+        ),
+      ),
+      Positioned(
+        bottom: -80,
+        left: -80,
+        child: Container(
+          width: 220,
+          height: 220,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            gradient: RadialGradient(
+              colors: [
+                AppTheme.accentColor.withValues(alpha: 0.1),
+                AppTheme.accentColor.withValues(alpha: 0),
+              ],
+            ),
+          ),
+        ),
+      ),
+      if (constraints.maxWidth > 600)
+        Positioned(
+          top: constraints.maxHeight * 0.3,
+          right: constraints.maxWidth * 0.08,
+          child: Container(
+            width: 80,
+            height: 80,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: Colors.white.withValues(alpha: 0.05),
+                width: 1,
+              ),
+            ),
+          ),
+        ),
+    ];
+  }
+
   Widget _buildLogo() {
     return Container(
-      width: 72,
-      height: 72,
+      width: 80,
+      height: 80,
       decoration: BoxDecoration(
         gradient: const LinearGradient(
-          colors: [AppTheme.primaryColor, AppTheme.accentColor],
+          colors: [AppTheme.primaryColor, Color(0xFFFF8F00)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(22),
         boxShadow: [
           BoxShadow(
-            color: AppTheme.primaryColor.withValues(alpha: 0.25),
-            blurRadius: 20,
-            offset: const Offset(0, 8),
+            color: AppTheme.primaryColor.withValues(alpha: 0.35),
+            blurRadius: 25,
+            offset: const Offset(0, 10),
           ),
         ],
       ),
       child: const Icon(
-        Icons.inventory_2_outlined,
+        Icons.inventory_2_rounded,
         color: Colors.white,
-        size: 36,
+        size: 40,
       ),
     );
   }
@@ -220,7 +293,8 @@ class _LoginScreenState extends State<LoginScreen>
       'Sign in to manage your inventory',
       style: TextStyle(
         fontSize: 14,
-        color: Colors.white.withValues(alpha: 0.5),
+        color: Colors.white.withValues(alpha: 0.45),
+        letterSpacing: 0.3,
       ),
     );
   }
@@ -229,10 +303,11 @@ class _LoginScreenState extends State<LoginScreen>
     return TextFormField(
       controller: _usernameController,
       style: const TextStyle(color: Colors.white, fontSize: 15),
+      textInputAction: TextInputAction.next,
       decoration: const InputDecoration(
         labelText: 'Username',
         hintText: 'Enter your username',
-        prefixIcon: Icon(Icons.person_outlined),
+        prefixIcon: Icon(Icons.person_outline_rounded),
       ),
       validator: (value) {
         if (value == null || value.isEmpty) return 'Please enter your username';
@@ -246,14 +321,15 @@ class _LoginScreenState extends State<LoginScreen>
       controller: _passwordController,
       obscureText: _obscurePassword,
       style: const TextStyle(color: Colors.white, fontSize: 15),
+      textInputAction: TextInputAction.done,
+      onFieldSubmitted: (_) => _handleLogin(),
       decoration: InputDecoration(
         labelText: 'Password',
         hintText: 'Enter your password',
-        prefixIcon: const Icon(Icons.lock_outlined),
+        prefixIcon: const Icon(Icons.lock_outline_rounded),
         suffixIcon: IconButton(
           icon: Icon(
             _obscurePassword ? Icons.visibility_outlined : Icons.visibility_off_outlined,
-            color: Colors.white38,
           ),
           onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
         ),
@@ -265,29 +341,75 @@ class _LoginScreenState extends State<LoginScreen>
     );
   }
 
+  Widget _buildForgotPassword() {
+    return Align(
+      alignment: Alignment.centerRight,
+      child: TextButton(
+        onPressed: () {},
+        style: TextButton.styleFrom(
+          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+          minimumSize: Size.zero,
+          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        ),
+        child: Text(
+          'Forgot password?',
+          style: TextStyle(
+            fontSize: 13,
+            color: AppTheme.primaryColor.withValues(alpha: 0.8),
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildError() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
         color: AppTheme.errorColor.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppTheme.errorColor.withValues(alpha: 0.3),
+          color: AppTheme.errorColor.withValues(alpha: 0.25),
         ),
       ),
       child: Row(
         children: [
-          Icon(Icons.error_outline, color: AppTheme.errorColor, size: 20),
+          Icon(Icons.error_outline_rounded, color: AppTheme.errorColor, size: 20),
           const SizedBox(width: 10),
-          Text(
-            _errorMessage!,
-            style: TextStyle(
-              color: AppTheme.errorColor,
-              fontSize: 13,
+          Expanded(
+            child: Text(
+              _errorMessage!,
+              style: TextStyle(
+                color: AppTheme.errorColor,
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+              ),
             ),
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildDivider() {
+    return Row(
+      children: [
+        Expanded(child: Divider(color: Colors.white.withValues(alpha: 0.08))),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Text(
+            'OR',
+            style: TextStyle(
+              fontSize: 11,
+              color: Colors.white.withValues(alpha: 0.3),
+              letterSpacing: 1,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+        Expanded(child: Divider(color: Colors.white.withValues(alpha: 0.08))),
+      ],
     );
   }
 
@@ -296,8 +418,9 @@ class _LoginScreenState extends State<LoginScreen>
       'developed by yasu solutions',
       style: TextStyle(
         fontSize: 11,
-        color: Colors.white.withValues(alpha: 0.3),
-        letterSpacing: 0.5,
+        color: Colors.white.withValues(alpha: 0.25),
+        letterSpacing: 1,
+        fontWeight: FontWeight.w400,
       ),
     );
   }
@@ -306,7 +429,7 @@ class _LoginScreenState extends State<LoginScreen>
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
       width: double.infinity,
-      height: 56,
+      height: 54,
       child: ElevatedButton(
         onPressed: _isLoading ? null : _handleLogin,
         style: ElevatedButton.styleFrom(
@@ -319,10 +442,10 @@ class _LoginScreenState extends State<LoginScreen>
         ),
         child: _isLoading
             ? const SizedBox(
-                width: 24,
-                height: 24,
+                width: 22,
+                height: 22,
                 child: CircularProgressIndicator(
-                  color: Colors.white,
+                  color: Color(0xFF1A1A2E),
                   strokeWidth: 2.5,
                 ),
               )
@@ -333,18 +456,18 @@ class _LoginScreenState extends State<LoginScreen>
                     'Sign In',
                     style: TextStyle(
                       fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF1A1A2E),
+                      letterSpacing: 0.5,
                     ),
                   ),
                   SizedBox(width: 8),
-                  Icon(Icons.arrow_forward_rounded, color: Colors.white, size: 20),
+                  Icon(Icons.arrow_forward_rounded, color: Color(0xFF1A1A2E), size: 20),
                 ],
               ),
       ),
     );
   }
-
 }
 
 class _AnimatedBackground extends StatefulWidget {
@@ -361,7 +484,7 @@ class _AnimatedBackgroundState extends State<_AnimatedBackground>
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(seconds: 8),
+      duration: const Duration(seconds: 10),
     )..repeat();
   }
 
@@ -381,8 +504,8 @@ class _AnimatedBackgroundState extends State<_AnimatedBackground>
             gradient: LinearGradient(
               colors: [
                 Color.lerp(
-                  const Color(0xFF0F0F1A),
-                  const Color(0xFF1A0F2E),
+                  const Color(0xFF0A0A1A),
+                  const Color(0xFF1A0A2E),
                   (sin(_controller.value * pi * 2) + 1) / 2,
                 )!,
                 Color.lerp(
@@ -392,7 +515,7 @@ class _AnimatedBackgroundState extends State<_AnimatedBackground>
                 )!,
                 Color.lerp(
                   const Color(0xFF0A0A14),
-                  const Color(0xFF14101A),
+                  const Color(0xFF140A1A),
                   (sin(_controller.value * pi * 2 + 1) + 1) / 2,
                 )!,
               ],
