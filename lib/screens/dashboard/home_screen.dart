@@ -311,7 +311,7 @@ class _SidebarHeader extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
-                  color: Colors.white.withValues(alpha: 0.7),
+                  color: Colors.white.withValues(alpha: 0.9),
                 ),
               ),
               const SizedBox(height: 2),
@@ -345,7 +345,7 @@ class _SidebarFooter extends StatelessWidget {
           icon: const Icon(Icons.logout_rounded, size: 16),
           label: const Text('Logout', style: TextStyle(fontSize: 13)),
           style: OutlinedButton.styleFrom(
-            foregroundColor: Colors.white54,
+            foregroundColor: Colors.white70,
             side: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
             padding: const EdgeInsets.symmetric(vertical: 10),
@@ -392,7 +392,7 @@ class _NavItem extends StatelessWidget {
           contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
           leading: Icon(
             icon,
-            color: selected ? roleColor : Colors.white54,
+            color: selected ? roleColor : Colors.white70,
             size: 20,
           ),
           title: Text(
@@ -400,7 +400,7 @@ class _NavItem extends StatelessWidget {
             style: TextStyle(
               fontSize: 13,
               fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
-              color: selected ? roleColor : Colors.white70,
+              color: selected ? roleColor : Colors.white,
             ),
           ),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -442,7 +442,7 @@ class _PosNavSection extends StatelessWidget {
             contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
             leading: Icon(
               Icons.shopping_cart_rounded,
-              color: posSelected ? roleColor : Colors.white54,
+              color: posSelected ? roleColor : Colors.white70,
               size: 20,
             ),
             title: Text(
@@ -450,7 +450,7 @@ class _PosNavSection extends StatelessWidget {
               style: TextStyle(
                 fontSize: 13,
                 fontWeight: posSelected ? FontWeight.w600 : FontWeight.w400,
-                color: posSelected ? roleColor : Colors.white70,
+                color: posSelected ? roleColor : Colors.white,
               ),
             ),
             trailing: AnimatedRotation(
@@ -458,7 +458,7 @@ class _PosNavSection extends StatelessWidget {
               duration: const Duration(milliseconds: 200),
               child: Icon(
                 Icons.keyboard_arrow_down_rounded,
-                color: posSelected ? roleColor : Colors.white54,
+                color: posSelected ? roleColor : Colors.white70,
                 size: 18,
               ),
             ),
