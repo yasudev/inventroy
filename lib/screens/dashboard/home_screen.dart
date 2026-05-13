@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import '../../models/user_model.dart';
+import '../../l10n/app_localizations.dart';
+import '../../l10n/locale_provider.dart';
+import 'settings_page.dart';
 
 class HomeScreen extends StatefulWidget {
   final AppUser user;
   final VoidCallback onLogout;
-  const HomeScreen({super.key, required this.user, required this.onLogout});
+  final LocaleProvider localeProvider;
+  const HomeScreen({super.key, required this.user, required this.onLogout, required this.localeProvider});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -14,15 +18,23 @@ class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
   bool _posExpanded = false;
 
-  final _pages = [
-    const _DashboardPage(),
-    const _PosSalePage(),
-    const _SaleHistoryPage(),
-  ];
-
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
     final data = _roleData(widget.user.role);
+    final pages = <Widget>[
+      _DashboardPage(t: t),
+      _PosSalePage(t: t),
+      _SaleHistoryPage(t: t),
+      SettingsPage(localeProvider: widget.localeProvider),
+    ];
+    final titles = [
+      t.translate('dashboard'),
+      t.translate('posSale'),
+      t.translate('saleHistory'),
+      t.translate('settings'),
+    ];
+
     return LayoutBuilder(
       builder: (context, constraints) {
         final isDesktop = constraints.maxWidth > 900;
@@ -31,19 +43,34 @@ class _HomeScreenState extends State<HomeScreen> {
             body: Row(
               children: [
                 _Sidebar(
-                  user: widget.user,
                   roleData: data,
                   currentIndex: _currentIndex,
                   posExpanded: _posExpanded,
                   onItemTap: (index) => setState(() => _currentIndex = index),
                   onPosToggle: () => setState(() => _posExpanded = !_posExpanded),
                   onLogout: widget.onLogout,
+                  t: t,
                 ),
                 Expanded(
                   child: Scaffold(
                     body: Padding(
                       padding: const EdgeInsets.all(32),
-                      child: _buildPageHeader(_titles[_currentIndex], _currentIndex),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            titles[_currentIndex],
+                            style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.white),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            _subtitles(_currentIndex, t),
+                            style: TextStyle(fontSize: 14, color: Colors.white.withValues(alpha: 0.4)),
+                          ),
+                          const SizedBox(height: 28),
+                          Expanded(child: pages[_currentIndex]),
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -59,7 +86,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 onPressed: () => Scaffold.of(context).openDrawer(),
               ),
             ),
-            title: Text(_titles[_currentIndex]),
+            title: Text(titles[_currentIndex]),
             actions: [
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -71,7 +98,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
-                      widget.user.displayName,
+                      _roleTitle(widget.user.role, t),
                       style: TextStyle(fontSize: 12, color: data.color, fontWeight: FontWeight.w600),
                     ),
                   ),
@@ -84,7 +111,6 @@ class _HomeScreenState extends State<HomeScreen> {
             ],
           ),
           drawer: _AppDrawer(
-            user: widget.user,
             roleData: data,
             currentIndex: _currentIndex,
             posExpanded: _posExpanded,
@@ -93,34 +119,32 @@ class _HomeScreenState extends State<HomeScreen> {
               Navigator.pop(context);
             },
             onPosToggle: () => setState(() => _posExpanded = !_posExpanded),
+            t: t,
           ),
-          body: _pages[_currentIndex],
+          body: pages[_currentIndex],
         );
       },
     );
   }
 
-  Widget _buildPageHeader(String title, int index) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.white),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          _subtitles[index],
-          style: TextStyle(fontSize: 14, color: Colors.white.withValues(alpha: 0.4)),
-        ),
-        const SizedBox(height: 28),
-        Expanded(child: _pages[index]),
-      ],
-    );
+  String _subtitles(int index, AppLocalizations t) {
+    switch (index) {
+      case 0: return t.translate('overview');
+      case 1: return t.translate('createSale');
+      case 2: return t.translate('viewHistory');
+      case 3: return '';
+      default: return '';
+    }
   }
 
-  static const _titles = ['Dashboard', 'POS Sale', 'Sale History'];
-  static const _subtitles = ['Overview of your business metrics', 'Create new sales transactions', 'View past transaction records'];
+  String _roleTitle(UserRole role, AppLocalizations t) {
+    switch (role) {
+      case UserRole.admin: return t.translate('admin');
+      case UserRole.cashier: return t.translate('cashier');
+      case UserRole.manager: return t.translate('manager');
+      case UserRole.seller: return t.translate('seller');
+    }
+  }
 
   _RoleData _roleData(UserRole role) {
     switch (role) {
@@ -134,7 +158,6 @@ class _HomeScreenState extends State<HomeScreen> {
             end: Alignment.bottomRight,
           ),
           icon: Icons.admin_panel_settings_rounded,
-          description: 'You have full system access',
         );
       case UserRole.cashier:
         return _RoleData(
@@ -146,7 +169,6 @@ class _HomeScreenState extends State<HomeScreen> {
             end: Alignment.bottomRight,
           ),
           icon: Icons.point_of_sale_rounded,
-          description: 'Process customer transactions',
         );
       case UserRole.manager:
         return _RoleData(
@@ -158,7 +180,6 @@ class _HomeScreenState extends State<HomeScreen> {
             end: Alignment.bottomRight,
           ),
           icon: Icons.analytics_rounded,
-          description: 'Oversee operations and reports',
         );
       case UserRole.seller:
         return _RoleData(
@@ -170,29 +191,28 @@ class _HomeScreenState extends State<HomeScreen> {
             end: Alignment.bottomRight,
           ),
           icon: Icons.store_rounded,
-          description: 'Manage your sales and inventory',
         );
     }
   }
 }
 
 class _Sidebar extends StatelessWidget {
-  final AppUser user;
   final _RoleData roleData;
   final int currentIndex;
   final bool posExpanded;
   final void Function(int) onItemTap;
   final VoidCallback onPosToggle;
   final VoidCallback onLogout;
+  final AppLocalizations t;
 
   const _Sidebar({
-    required this.user,
     required this.roleData,
     required this.currentIndex,
     required this.posExpanded,
     required this.onItemTap,
     required this.onPosToggle,
     required this.onLogout,
+    required this.t,
   });
 
   @override
@@ -214,7 +234,7 @@ class _Sidebar extends StatelessWidget {
               children: [
                 _NavItem(
                   icon: Icons.dashboard_rounded,
-                  label: 'Dashboard',
+                  label: t.translate('dashboard'),
                   index: 0,
                   currentIndex: currentIndex,
                   roleColor: roleData.color,
@@ -226,6 +246,15 @@ class _Sidebar extends StatelessWidget {
                   roleColor: roleData.color,
                   onToggle: onPosToggle,
                   onItemTap: onItemTap,
+                  t: t,
+                ),
+                _NavItem(
+                  icon: Icons.settings_rounded,
+                  label: t.translate('settings'),
+                  index: 3,
+                  currentIndex: currentIndex,
+                  roleColor: roleData.color,
+                  onTap: onItemTap,
                 ),
               ],
             ),
@@ -238,20 +267,20 @@ class _Sidebar extends StatelessWidget {
 }
 
 class _AppDrawer extends StatelessWidget {
-  final AppUser user;
   final _RoleData roleData;
   final int currentIndex;
   final bool posExpanded;
   final void Function(int) onItemTap;
   final VoidCallback onPosToggle;
+  final AppLocalizations t;
 
   const _AppDrawer({
-    required this.user,
     required this.roleData,
     required this.currentIndex,
     required this.posExpanded,
     required this.onItemTap,
     required this.onPosToggle,
+    required this.t,
   });
 
   @override
@@ -263,7 +292,7 @@ class _AppDrawer extends StatelessWidget {
           _SidebarHeader(roleData: roleData),
           _NavItem(
             icon: Icons.dashboard_rounded,
-            label: 'Dashboard',
+            label: t.translate('dashboard'),
             index: 0,
             currentIndex: currentIndex,
             roleColor: roleData.color,
@@ -275,6 +304,15 @@ class _AppDrawer extends StatelessWidget {
             roleColor: roleData.color,
             onToggle: onPosToggle,
             onItemTap: onItemTap,
+            t: t,
+          ),
+          _NavItem(
+            icon: Icons.settings_rounded,
+            label: t.translate('settings'),
+            index: 3,
+            currentIndex: currentIndex,
+            roleColor: roleData.color,
+            onTap: onItemTap,
           ),
         ],
       ),
@@ -307,7 +345,7 @@ class _SidebarHeader extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Yum Inventory',
+                AppLocalizations.of(context).translate('appName'),
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
@@ -337,13 +375,14 @@ class _SidebarFooter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
     return Container(
       padding: const EdgeInsets.all(12),
       child: SizedBox(
         width: double.infinity,
         child: OutlinedButton.icon(
           icon: const Icon(Icons.logout_rounded, size: 16),
-          label: const Text('Logout', style: TextStyle(fontSize: 13)),
+          label: Text(t.translate('logout'), style: const TextStyle(fontSize: 13)),
           style: OutlinedButton.styleFrom(
             foregroundColor: Colors.white70,
             side: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
@@ -417,6 +456,7 @@ class _PosNavSection extends StatelessWidget {
   final Color roleColor;
   final VoidCallback onToggle;
   final void Function(int) onItemTap;
+  final AppLocalizations t;
 
   const _PosNavSection({
     required this.expanded,
@@ -424,6 +464,7 @@ class _PosNavSection extends StatelessWidget {
     required this.roleColor,
     required this.onToggle,
     required this.onItemTap,
+    required this.t,
   });
 
   @override
@@ -446,7 +487,7 @@ class _PosNavSection extends StatelessWidget {
               size: 20,
             ),
             title: Text(
-              'POS',
+              t.translate('pos'),
               style: TextStyle(
                 fontSize: 13,
                 fontWeight: posSelected ? FontWeight.w600 : FontWeight.w400,
@@ -472,7 +513,7 @@ class _PosNavSection extends StatelessWidget {
             children: [
               _NavItem(
                 icon: Icons.receipt_long_rounded,
-                label: 'POS Sale',
+                label: t.translate('posSale'),
                 index: 1,
                 currentIndex: currentIndex,
                 roleColor: roleColor,
@@ -481,7 +522,7 @@ class _PosNavSection extends StatelessWidget {
               ),
               _NavItem(
                 icon: Icons.history_rounded,
-                label: 'Sale History',
+                label: t.translate('saleHistory'),
                 index: 2,
                 currentIndex: currentIndex,
                 roleColor: roleColor,
@@ -499,7 +540,8 @@ class _PosNavSection extends StatelessWidget {
 }
 
 class _DashboardPage extends StatelessWidget {
-  const _DashboardPage();
+  final AppLocalizations t;
+  const _DashboardPage({required this.t});
 
   @override
   Widget build(BuildContext context) {
@@ -509,12 +551,12 @@ class _DashboardPage extends StatelessWidget {
       crossAxisSpacing: 20,
       childAspectRatio: 1.6,
       children: [
-        _MetricCard(title: 'Total Sales', value: '\$12,845', change: '+12.5%', up: true, color: const Color(0xFF34D399)),
-        _MetricCard(title: 'Orders', value: '346', change: '+8.2%', up: true, color: const Color(0xFF4F8CFF)),
-        _MetricCard(title: 'Customers', value: '189', change: '+5.7%', up: true, color: const Color(0xFF8B5CF6)),
-        _MetricCard(title: 'Revenue', value: '\$48,230', change: '+15.3%', up: true, color: const Color(0xFFFF6B8A)),
-        _MetricCard(title: 'Products', value: '1,024', change: '+3.1%', up: true, color: const Color(0xFF2DD4BF)),
-        _MetricCard(title: 'Growth', value: '23.8%', change: '+2.4%', up: true, color: const Color(0xFFFB923C)),
+        _MetricCard(title: t.translate('totalSales'), value: '\$12,845', change: '+12.5%', up: true, color: const Color(0xFF34D399)),
+        _MetricCard(title: t.translate('orders'), value: '346', change: '+8.2%', up: true, color: const Color(0xFF4F8CFF)),
+        _MetricCard(title: t.translate('customers'), value: '189', change: '+5.7%', up: true, color: const Color(0xFF8B5CF6)),
+        _MetricCard(title: t.translate('revenue'), value: '\$48,230', change: '+15.3%', up: true, color: const Color(0xFFFF6B8A)),
+        _MetricCard(title: t.translate('products'), value: '1,024', change: '+3.1%', up: true, color: const Color(0xFF2DD4BF)),
+        _MetricCard(title: t.translate('growth'), value: '23.8%', change: '+2.4%', up: true, color: const Color(0xFFFB923C)),
       ],
     );
   }
@@ -589,24 +631,25 @@ class _MetricCard extends StatelessWidget {
 }
 
 class _PosSalePage extends StatelessWidget {
-  const _PosSalePage();
+  final AppLocalizations t;
+  const _PosSalePage({required this.t});
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
+    return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.point_of_sale_rounded, color: Colors.white24, size: 64),
-          SizedBox(height: 16),
+          const Icon(Icons.point_of_sale_rounded, color: Colors.white24, size: 64),
+          const SizedBox(height: 16),
           Text(
-            'POS Sale',
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
+            t.translate('posSale'),
+            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           Text(
-            'Process new sales transactions',
-            style: TextStyle(fontSize: 14, color: Colors.white38),
+            t.translate('createSale'),
+            style: TextStyle(fontSize: 14, color: Colors.white.withValues(alpha: 0.38)),
           ),
         ],
       ),
@@ -615,24 +658,25 @@ class _PosSalePage extends StatelessWidget {
 }
 
 class _SaleHistoryPage extends StatelessWidget {
-  const _SaleHistoryPage();
+  final AppLocalizations t;
+  const _SaleHistoryPage({required this.t});
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
+    return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.history_rounded, color: Colors.white24, size: 64),
-          SizedBox(height: 16),
+          const Icon(Icons.history_rounded, color: Colors.white24, size: 64),
+          const SizedBox(height: 16),
           Text(
-            'Sale History',
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
+            t.translate('saleHistory'),
+            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           Text(
-            'View past transactions',
-            style: TextStyle(fontSize: 14, color: Colors.white38),
+            t.translate('viewHistory'),
+            style: TextStyle(fontSize: 14, color: Colors.white.withValues(alpha: 0.38)),
           ),
         ],
       ),
@@ -645,12 +689,10 @@ class _RoleData {
   final Color color;
   final Gradient gradient;
   final IconData icon;
-  final String description;
   const _RoleData({
     required this.title,
     required this.color,
     required this.gradient,
     required this.icon,
-    required this.description,
   });
 }

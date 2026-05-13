@@ -2,6 +2,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 import '../models/user_model.dart';
+import '../l10n/app_localizations.dart';
 
 class LoginScreen extends StatefulWidget {
   final void Function(AppUser user)? onLogin;
@@ -81,7 +82,7 @@ class _LoginScreenState extends State<LoginScreen>
         } else {
           setState(() {
             _isLoading = false;
-            _errorMessage = 'Invalid username or password';
+            _errorMessage = AppLocalizations.of(context).translate('invalidCredentials');
           });
         }
       });
@@ -264,9 +265,9 @@ class _LoginScreenState extends State<LoginScreen>
   }
 
   Widget _buildTitle() {
-    return const Text(
-      'Yum Inventory',
-      style: TextStyle(
+    return Text(
+      AppLocalizations.of(context).translate('appName'),
+      style: const TextStyle(
         fontSize: 28,
         fontWeight: FontWeight.bold,
         color: Colors.white,
@@ -277,7 +278,7 @@ class _LoginScreenState extends State<LoginScreen>
 
   Widget _buildSubtitle() {
     return Text(
-      'Sign in to manage your inventory',
+      AppLocalizations.of(context).translate('signInToManage'),
       style: TextStyle(
         fontSize: 14,
         color: Colors.white.withValues(alpha: 0.8),
@@ -292,10 +293,10 @@ class _LoginScreenState extends State<LoginScreen>
       controller: _usernameController,
       style: const TextStyle(color: Colors.white, fontSize: 15),
       textInputAction: TextInputAction.next,
-      decoration: const InputDecoration(
-        labelText: 'Username',
-        hintText: 'Enter your username',
-        prefixIcon: Icon(Icons.person_outline_rounded),
+      decoration: InputDecoration(
+        labelText: AppLocalizations.of(context).translate('username'),
+        hintText: AppLocalizations.of(context).translate('enterUsername'),
+        prefixIcon: const Icon(Icons.person_outline_rounded),
       ),
       validator: (value) {
         if (value == null || value.isEmpty) return 'Please enter your username';
@@ -312,8 +313,8 @@ class _LoginScreenState extends State<LoginScreen>
       textInputAction: TextInputAction.done,
       onFieldSubmitted: (_) => _handleLogin(),
       decoration: InputDecoration(
-        labelText: 'Password',
-        hintText: 'Enter your password',
+        labelText: AppLocalizations.of(context).translate('password'),
+        hintText: AppLocalizations.of(context).translate('enterPassword'),
         prefixIcon: const Icon(Icons.lock_outline_rounded),
         suffixIcon: IconButton(
           icon: Icon(
@@ -340,7 +341,7 @@ class _LoginScreenState extends State<LoginScreen>
           tapTargetSize: MaterialTapTargetSize.shrinkWrap,
         ),
         child: Text(
-          'Forgot password?',
+          AppLocalizations.of(context).translate('forgotPassword'),
           style: TextStyle(
             fontSize: 13,
             color: AppTheme.primaryColor.withValues(alpha: 0.8),
@@ -382,7 +383,7 @@ class _LoginScreenState extends State<LoginScreen>
 
   Widget _buildFooter() {
     return Text(
-      'developed by Yasu Solurions',
+      AppLocalizations.of(context).translate('developedBy'),
       style: TextStyle(
         fontSize: 12,
         color: AppTheme.accentColor.withValues(alpha: 0.7),
@@ -416,20 +417,20 @@ class _LoginScreenState extends State<LoginScreen>
                   strokeWidth: 2.5,
                 ),
               )
-            : const Row(
+            : Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    'Sign In',
-                    style: TextStyle(
+                    AppLocalizations.of(context).translate('signIn'),
+                    style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w700,
                       color: Colors.white,
                       letterSpacing: 0.5,
                     ),
                   ),
-                  SizedBox(width: 8),
-                  Icon(Icons.arrow_forward_rounded, color: Colors.white, size: 20),
+                  const SizedBox(width: 8),
+                  const Icon(Icons.arrow_forward_rounded, color: Colors.white, size: 20),
                 ],
               ),
       ),
