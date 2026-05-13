@@ -3,13 +3,14 @@ import 'package:flutter/material.dart';
 class AppTheme {
   AppTheme._();
 
-  static const Color primaryColor = Color(0xFFFFB300);
-  static const Color accentColor = Color(0xFF00E5FF);
-  static const Color surfaceColor = Color(0xFF1A1A2E);
-  static const Color backgroundColor = Color(0xFF0F0F1A);
-  static const Color cardColor = Color(0xFF1E1E30);
-  static const Color errorColor = Color(0xFFFF5252);
-  static const Color successColor = Color(0xFF4CAF50);
+  static const Color primaryColor = Color(0xFF4F8CFF);
+  static const Color accentColor = Color(0xFFFF6B8A);
+  static const Color surfaceColor = Color(0xFF141929);
+  static const Color backgroundColor = Color(0xFF0A0E1A);
+  static const Color cardColor = Color(0xFF1C2333);
+  static const Color errorColor = Color(0xFFEF4444);
+  static const Color successColor = Color(0xFF34D399);
+  static const Color warningColor = Color(0xFFFBBF24);
 
   static ThemeData get darkTheme {
     return ThemeData(
@@ -21,6 +22,20 @@ class AppTheme {
         secondary: accentColor,
         surface: surfaceColor,
         error: errorColor,
+      ),
+      appBarTheme: AppBarTheme(
+        backgroundColor: surfaceColor,
+        elevation: 0,
+        centerTitle: true,
+        titleTextStyle: const TextStyle(
+          fontSize: 18,
+          fontWeight: FontWeight.w600,
+          color: Colors.white,
+        ),
+        iconTheme: const IconThemeData(color: Colors.white70),
+      ),
+      drawerTheme: const DrawerThemeData(
+        backgroundColor: surfaceColor,
       ),
       textTheme: const TextTheme(
         headlineLarge: TextStyle(
@@ -70,7 +85,7 @@ class AppTheme {
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: primaryColor,
-          foregroundColor: const Color(0xFF1A1A2E),
+          foregroundColor: Colors.white,
           minimumSize: const Size(double.infinity, 54),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(14),

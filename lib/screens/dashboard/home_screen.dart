@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../theme/app_theme.dart';
 import '../../models/user_model.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -74,9 +73,9 @@ class _HomeScreenState extends State<HomeScreen> {
       case UserRole.admin:
         return _RoleData(
           title: 'Admin',
-          color: AppTheme.primaryColor,
+          color: const Color(0xFF4F8CFF),
           gradient: const LinearGradient(
-            colors: [AppTheme.primaryColor, Color(0xFFFF8F00)],
+            colors: [Color(0xFF4F8CFF), Color(0xFF6C5CE7)],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
@@ -86,9 +85,9 @@ class _HomeScreenState extends State<HomeScreen> {
       case UserRole.cashier:
         return _RoleData(
           title: 'Cashier',
-          color: const Color(0xFF00E5FF),
+          color: const Color(0xFF2DD4BF),
           gradient: const LinearGradient(
-            colors: [Color(0xFF00E5FF), Color(0xFF00B8D4)],
+            colors: [Color(0xFF2DD4BF), Color(0xFF0891B2)],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
@@ -98,9 +97,9 @@ class _HomeScreenState extends State<HomeScreen> {
       case UserRole.manager:
         return _RoleData(
           title: 'Manager',
-          color: const Color(0xFF4CAF50),
+          color: const Color(0xFF8B5CF6),
           gradient: const LinearGradient(
-            colors: [Color(0xFF4CAF50), Color(0xFF388E3C)],
+            colors: [Color(0xFF8B5CF6), Color(0xFF6D28D9)],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
@@ -110,9 +109,9 @@ class _HomeScreenState extends State<HomeScreen> {
       case UserRole.seller:
         return _RoleData(
           title: 'Seller',
-          color: const Color(0xFFAB47BC),
+          color: const Color(0xFFFB923C),
           gradient: const LinearGradient(
-            colors: [Color(0xFFAB47BC), Color(0xFF7B1FA2)],
+            colors: [Color(0xFFFB923C), Color(0xFFEA580C)],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),

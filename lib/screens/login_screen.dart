@@ -242,7 +242,7 @@ class _LoginScreenState extends State<LoginScreen>
       height: 80,
       decoration: BoxDecoration(
         gradient: const LinearGradient(
-          colors: [AppTheme.primaryColor, Color(0xFFFF8F00)],
+          colors: [AppTheme.primaryColor, Color(0xFF6C5CE7)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -412,7 +412,7 @@ class _LoginScreenState extends State<LoginScreen>
                 width: 22,
                 height: 22,
                 child: CircularProgressIndicator(
-                  color: Color(0xFF1A1A2E),
+                  color: Colors.white,
                   strokeWidth: 2.5,
                 ),
               )
@@ -424,12 +424,12 @@ class _LoginScreenState extends State<LoginScreen>
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w700,
-                      color: Color(0xFF1A1A2E),
+                      color: Colors.white,
                       letterSpacing: 0.5,
                     ),
                   ),
                   SizedBox(width: 8),
-                  Icon(Icons.arrow_forward_rounded, color: Color(0xFF1A1A2E), size: 20),
+                  Icon(Icons.arrow_forward_rounded, color: Colors.white, size: 20),
                 ],
               ),
       ),
