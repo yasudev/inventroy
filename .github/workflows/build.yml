@@ -29,4 +29,4 @@ jobs:
         if: success()
         with:
           name: windows-exe
-          path: build/windows/x64/runner/Release/yum_inventory.exe
+          path: build/windows/x64/runner/Release/myapp.exe
