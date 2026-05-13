@@ -1,9 +1,12 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
+import '../models/user_model.dart';
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+  final void Function(AppUser user)? onLogin;
+
+  const LoginScreen({super.key, this.onLogin});
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -21,12 +24,6 @@ class _LoginScreenState extends State<LoginScreen>
   bool _isLoading = false;
   bool _obscurePassword = true;
   String? _errorMessage;
-
-  static const _users = {
-    'test1': '1234',
-    'test2': '1234',
-    'test3': '1234',
-  };
 
   @override
   void initState() {
@@ -77,18 +74,10 @@ class _LoginScreenState extends State<LoginScreen>
         if (!mounted) return;
         final username = _usernameController.text.trim();
         final password = _passwordController.text;
-        if (_users.containsKey(username) && _users[username] == password) {
+        final user = AppUser.authenticate(username, password);
+        if (user != null) {
           setState(() => _isLoading = false);
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Welcome, $username!'),
-              backgroundColor: AppTheme.successColor,
-              behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-          );
+          widget.onLogin?.call(user);
         } else {
           setState(() {
             _isLoading = false;
