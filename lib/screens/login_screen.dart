@@ -393,7 +393,7 @@ class _LoginScreenState extends State<LoginScreen>
 
   Widget _buildFooter() {
     return Text(
-      'developed by Yasi Solotuin',
+      'developed by Yasu Solurions',
       style: TextStyle(
         fontSize: 12,
         color: AppTheme.accentColor.withValues(alpha: 0.7),
