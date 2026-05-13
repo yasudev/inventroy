@@ -173,8 +173,6 @@ class _LoginScreenState extends State<LoginScreen>
                                   _buildForgotPassword(),
                                   const SizedBox(height: 24),
                                   _buildLoginButton(),
-                                  const SizedBox(height: 24),
-                                  _buildDivider(),
                                   const SizedBox(height: 20),
                                   _buildFooter(),
                                 ],
@@ -293,7 +291,8 @@ class _LoginScreenState extends State<LoginScreen>
       'Sign in to manage your inventory',
       style: TextStyle(
         fontSize: 14,
-        color: Colors.white.withValues(alpha: 0.45),
+        color: Colors.white.withValues(alpha: 0.8),
+        fontWeight: FontWeight.w600,
         letterSpacing: 0.3,
       ),
     );
@@ -392,35 +391,14 @@ class _LoginScreenState extends State<LoginScreen>
     );
   }
 
-  Widget _buildDivider() {
-    return Row(
-      children: [
-        Expanded(child: Divider(color: Colors.white.withValues(alpha: 0.08))),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Text(
-            'OR',
-            style: TextStyle(
-              fontSize: 11,
-              color: Colors.white.withValues(alpha: 0.3),
-              letterSpacing: 1,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ),
-        Expanded(child: Divider(color: Colors.white.withValues(alpha: 0.08))),
-      ],
-    );
-  }
-
   Widget _buildFooter() {
     return Text(
-      'developed by yasu solutions',
+      'developed by Yasi Solotuin',
       style: TextStyle(
-        fontSize: 11,
-        color: Colors.white.withValues(alpha: 0.25),
+        fontSize: 12,
+        color: AppTheme.accentColor.withValues(alpha: 0.7),
         letterSpacing: 1,
-        fontWeight: FontWeight.w400,
+        fontWeight: FontWeight.w600,
       ),
     );
   }
