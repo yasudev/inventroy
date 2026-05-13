@@ -23,46 +23,90 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final data = _roleData(widget.user.role);
-    return Scaffold(
-      appBar: AppBar(
-        leading: Builder(
-          builder: (context) => IconButton(
-            icon: const Icon(Icons.menu_rounded),
-            onPressed: () => Scaffold.of(context).openDrawer(),
-          ),
-        ),
-        title: Text(_titles[_currentIndex]),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Center(
-              child: Text(
-                widget.user.displayName,
-                style: const TextStyle(fontSize: 14, color: Colors.white70),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isDesktop = constraints.maxWidth > 900;
+        if (isDesktop) {
+          return Scaffold(
+            body: Row(
+              children: [
+                _Sidebar(
+                  user: widget.user,
+                  roleData: data,
+                  currentIndex: _currentIndex,
+                  posExpanded: _posExpanded,
+                  onItemTap: (index) => setState(() => _currentIndex = index),
+                  onPosToggle: () => setState(() => _posExpanded = !_posExpanded),
+                  onLogout: widget.onLogout,
+                ),
+                Expanded(
+                  child: Scaffold(
+                    appBar: AppBar(
+                      title: Text(_titles[_currentIndex]),
+                      actions: [
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: Center(
+                            child: Text(
+                              widget.user.displayName,
+                              style: const TextStyle(fontSize: 14, color: Colors.white70),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    body: AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 300),
+                      child: _pages[_currentIndex],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+        }
+        return Scaffold(
+          appBar: AppBar(
+            leading: Builder(
+              builder: (context) => IconButton(
+                icon: const Icon(Icons.menu_rounded),
+                onPressed: () => Scaffold.of(context).openDrawer(),
               ),
             ),
+            title: Text(_titles[_currentIndex]),
+            actions: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Center(
+                  child: Text(
+                    widget.user.displayName,
+                    style: const TextStyle(fontSize: 14, color: Colors.white70),
+                  ),
+                ),
+              ),
+              IconButton(
+                icon: const Icon(Icons.logout_rounded),
+                onPressed: widget.onLogout,
+              ),
+            ],
           ),
-          IconButton(
-            icon: const Icon(Icons.logout_rounded),
-            onPressed: widget.onLogout,
+          drawer: _AppDrawer(
+            user: widget.user,
+            roleData: data,
+            currentIndex: _currentIndex,
+            posExpanded: _posExpanded,
+            onItemTap: (index) {
+              setState(() => _currentIndex = index);
+              Navigator.pop(context);
+            },
+            onPosToggle: () => setState(() => _posExpanded = !_posExpanded),
           ),
-        ],
-      ),
-      drawer: _AppDrawer(
-        user: widget.user,
-        roleData: data,
-        currentIndex: _currentIndex,
-        posExpanded: _posExpanded,
-        onItemTap: (index) {
-          setState(() => _currentIndex = index);
-          Navigator.pop(context);
-        },
-        onPosToggle: () => setState(() => _posExpanded = !_posExpanded),
-      ),
-      body: AnimatedSwitcher(
-        duration: const Duration(milliseconds: 300),
-        child: _pages[_currentIndex],
-      ),
+          body: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 300),
+            child: _pages[_currentIndex],
+          ),
+        );
+      },
     );
   }
 
@@ -122,6 +166,77 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
+class _Sidebar extends StatelessWidget {
+  final AppUser user;
+  final _RoleData roleData;
+  final int currentIndex;
+  final bool posExpanded;
+  final void Function(int) onItemTap;
+  final VoidCallback onPosToggle;
+  final VoidCallback onLogout;
+
+  const _Sidebar({
+    required this.user,
+    required this.roleData,
+    required this.currentIndex,
+    required this.posExpanded,
+    required this.onItemTap,
+    required this.onPosToggle,
+    required this.onLogout,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 260,
+      decoration: BoxDecoration(
+        color: const Color(0xFF141929),
+        border: Border(
+          right: BorderSide(color: Colors.white.withValues(alpha: 0.06)),
+        ),
+      ),
+      child: Column(
+        children: [
+          _DrawerHeader(user: user, roleData: roleData),
+          Expanded(
+            child: ListView(
+              padding: EdgeInsets.zero,
+              children: [
+                _DrawerItem(
+                  icon: Icons.dashboard_rounded,
+                  label: 'Dashboard',
+                  index: 0,
+                  currentIndex: currentIndex,
+                  roleColor: roleData.color,
+                  onTap: onItemTap,
+                ),
+                _PosSection(
+                  expanded: posExpanded,
+                  currentIndex: currentIndex,
+                  roleColor: roleData.color,
+                  onToggle: onPosToggle,
+                  onItemTap: onItemTap,
+                ),
+              ],
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.all(12),
+            child: SizedBox(
+              width: double.infinity,
+              child: TextButton.icon(
+                icon: Icon(Icons.logout_rounded, color: Colors.white54, size: 18),
+                label: Text('Logout', style: TextStyle(color: Colors.white54, fontSize: 13)),
+                onPressed: onLogout,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class _AppDrawer extends StatelessWidget {
   final AppUser user;
   final _RoleData roleData;
@@ -176,8 +291,8 @@ class _DrawerHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.only(
-        top: MediaQuery.of(context).padding.top + 24,
+      padding: const EdgeInsets.only(
+        top: 24,
         bottom: 24,
         left: 20,
         right: 20,
