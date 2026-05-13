@@ -142,30 +142,24 @@ class _AppDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Drawer(
-      child: Column(
+      child: ListView(
+        padding: EdgeInsets.zero,
         children: [
           _DrawerHeader(user: user, roleData: roleData),
-          Expanded(
-            child: ListView(
-              padding: const EdgeInsets.symmetric(vertical: 8),
-              children: [
-                _DrawerItem(
-                  icon: Icons.dashboard_rounded,
-                  label: 'Dashboard',
-                  index: 0,
-                  currentIndex: currentIndex,
-                  roleColor: roleData.color,
-                  onTap: onItemTap,
-                ),
-                _PosSection(
-                  expanded: posExpanded,
-                  currentIndex: currentIndex,
-                  roleColor: roleData.color,
-                  onToggle: onPosToggle,
-                  onItemTap: onItemTap,
-                ),
-              ],
-            ),
+          _DrawerItem(
+            icon: Icons.dashboard_rounded,
+            label: 'Dashboard',
+            index: 0,
+            currentIndex: currentIndex,
+            roleColor: roleData.color,
+            onTap: onItemTap,
+          ),
+          _PosSection(
+            expanded: posExpanded,
+            currentIndex: currentIndex,
+            roleColor: roleData.color,
+            onToggle: onPosToggle,
+            onItemTap: onItemTap,
           ),
         ],
       ),
