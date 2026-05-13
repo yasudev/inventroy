@@ -3,10 +3,7 @@ import 'package:flutter/services.dart';
 import 'theme/app_theme.dart';
 import 'models/user_model.dart';
 import 'screens/login_screen.dart';
-import 'screens/dashboard/admin_dashboard.dart';
-import 'screens/dashboard/cashier_dashboard.dart';
-import 'screens/dashboard/manager_dashboard.dart';
-import 'screens/dashboard/seller_dashboard.dart';
+import 'screens/dashboard/home_screen.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -45,20 +42,7 @@ class _MyAppState extends State<MyApp> {
       theme: AppTheme.darkTheme,
       home: _user == null
           ? LoginScreen(onLogin: _onLogin)
-          : _buildDashboard(),
+          : HomeScreen(user: _user!, onLogout: _onLogout),
     );
-  }
-
-  Widget _buildDashboard() {
-    switch (_user!.role) {
-      case UserRole.admin:
-        return AdminDashboard(user: _user!, onLogout: _onLogout);
-      case UserRole.cashier:
-        return CashierDashboard(user: _user!, onLogout: _onLogout);
-      case UserRole.manager:
-        return ManagerDashboard(user: _user!, onLogout: _onLogout);
-      case UserRole.seller:
-        return SellerDashboard(user: _user!, onLogout: _onLogout);
-    }
   }
 }
