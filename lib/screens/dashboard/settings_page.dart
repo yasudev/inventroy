@@ -90,7 +90,7 @@ class _LanguageOption extends StatelessWidget {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         leading: Icon(
           selected ? Icons.check_circle_rounded : Icons.circle_outlined,
-          color: selected ? const Color(0xFF4F8CFF) : Colors.white38,
+          color: selected ? const Color(0xFF4F8CFF) : Colors.white60,
           size: 22,
         ),
         title: Text(
@@ -103,7 +103,7 @@ class _LanguageOption extends StatelessWidget {
         ),
         subtitle: Text(
           subtitle,
-          style: TextStyle(fontSize: 12, color: Colors.white.withValues(alpha: 0.4)),
+          style: TextStyle(fontSize: 12, color: Colors.white.withValues(alpha: 0.6)),
         ),
         onTap: onTap,
       ),
