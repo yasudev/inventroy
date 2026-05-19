@@ -14,13 +14,14 @@ class DatabaseHelper {
     final path = join(await getDatabasesPath(), 'yum_inventory.db');
     _db = await openDatabase(
       path,
-      version: 1,
+      version: 2,
       onCreate: (db, version) async {
         await db.execute('''
           CREATE TABLE IF NOT EXISTS categories (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL,
             description TEXT DEFAULT '',
+            is_active INTEGER DEFAULT 1,
             created_at TEXT,
             updated_at TEXT,
             sync_status TEXT DEFAULT 'synced'
@@ -137,14 +138,20 @@ class DatabaseHelper {
           )
         ''');
       },
+      onUpgrade: (db, oldVersion, newVersion) async {
+        if (oldVersion < 2) {
+          await db.execute(
+            'ALTER TABLE categories ADD COLUMN is_active INTEGER DEFAULT 1',
+          );
+        }
+      },
     );
   }
 
   Future<List<Map<String, dynamic>>> getAll(String table) async =>
       db.query(table, orderBy: 'name ASC');
 
-  Future<List<Map<String, dynamic>>> getAllProducts() async =>
-      db.rawQuery('''
+  Future<List<Map<String, dynamic>>> getAllProducts() async => db.rawQuery('''
         SELECT p.*, c.name as category_name, u.name as unit_name, b.name as brand_name,
           w.name as warehouse_name, l.name as location_name
         FROM products p
@@ -156,16 +163,14 @@ class DatabaseHelper {
         ORDER BY p.name ASC
       ''');
 
-  Future<List<Map<String, dynamic>>> getAllLocations() async =>
-      db.rawQuery('''
+  Future<List<Map<String, dynamic>>> getAllLocations() async => db.rawQuery('''
         SELECT l.*, w.name as warehouse_name
         FROM locations l
         LEFT JOIN warehouses w ON l.warehouse_id = w.id
         ORDER BY l.name ASC
       ''');
 
-  Future<List<Map<String, dynamic>>> getAllSales() async =>
-      db.rawQuery('''
+  Future<List<Map<String, dynamic>>> getAllSales() async => db.rawQuery('''
         SELECT s.*, u.display_name as user_name, c.name as customer_name
         FROM sales s
         LEFT JOIN customers c ON s.customer_id = c.id
@@ -192,7 +197,11 @@ class DatabaseHelper {
   Future<List<Map<String, dynamic>>> getSyncQueue() async =>
       db.query('sync_queue', orderBy: 'created_at ASC');
 
-  Future<void> addToSyncQueue(String entity, String action, Map<String, dynamic> data) async {
+  Future<void> addToSyncQueue(
+    String entity,
+    String action,
+    Map<String, dynamic> data,
+  ) async {
     await db.insert('sync_queue', {
       'entity': entity,
       'action': action,
@@ -201,21 +210,31 @@ class DatabaseHelper {
     });
   }
 
-  Future<void> clearSyncQueue() async =>
-      db.delete('sync_queue');
+  Future<void> clearSyncQueue() async => db.delete('sync_queue');
 
   Future<void> setSyncMeta(String key, String value) async {
-    await db.insert('sync_meta', {'key': key, 'value': value},
-        conflictAlgorithm: ConflictAlgorithm.replace);
+    await db.insert('sync_meta', {
+      'key': key,
+      'value': value,
+    }, conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
   Future<String?> getSyncMeta(String key) async {
-    final results = await db.query('sync_meta', where: 'key = ?', whereArgs: [key]);
+    final results = await db.query(
+      'sync_meta',
+      where: 'key = ?',
+      whereArgs: [key],
+    );
     return results.isNotEmpty ? results.first['value'] as String? : null;
   }
 
   Future<void> markSynced(String table, int id) async {
-    await db.update(table, {'sync_status': 'synced'}, where: 'id = ?', whereArgs: [id]);
+    await db.update(
+      table,
+      {'sync_status': 'synced'},
+      where: 'id = ?',
+      whereArgs: [id],
+    );
   }
 
   Future<void> upsert(String table, Map<String, dynamic> data) async {
@@ -223,7 +242,10 @@ class DatabaseHelper {
     if (id == null) {
       await db.insert(table, data);
     } else {
-      final existing = await getById(table, id is int ? id : int.parse(id.toString()));
+      final existing = await getById(
+        table,
+        id is int ? id : int.parse(id.toString()),
+      );
       if (existing != null) {
         data['sync_status'] = 'synced';
         await db.update(table, data, where: 'id = ?', whereArgs: [id]);
@@ -233,6 +255,12 @@ class DatabaseHelper {
     }
   }
 
-  Future<List<Map<String, dynamic>>> getLocationsByWarehouse(int warehouseId) async =>
-      db.query('locations', where: 'warehouse_id = ?', whereArgs: [warehouseId], orderBy: 'name ASC');
+  Future<List<Map<String, dynamic>>> getLocationsByWarehouse(
+    int warehouseId,
+  ) async => db.query(
+    'locations',
+    where: 'warehouse_id = ?',
+    whereArgs: [warehouseId],
+    orderBy: 'name ASC',
+  );
 }

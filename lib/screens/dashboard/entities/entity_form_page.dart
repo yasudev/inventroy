@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../../l10n/app_localizations.dart';
+import '../../../models/category_model.dart';
 import '../../../providers/inventory_provider.dart';
 import '../../../theme/app_theme.dart';
 
@@ -22,19 +24,35 @@ class EntityFormPage extends StatefulWidget {
 class _EntityFormPageState extends State<EntityFormPage> {
   final _formKey = GlobalKey<FormState>();
   late Map<String, TextEditingController> _controllers;
+  bool _isActive = true;
   bool _saving = false;
 
   @override
   void initState() {
     super.initState();
     _controllers = _buildControllers();
+    if (widget.editData != null) {
+      _isActive = _getIsActive(widget.editData);
+    }
+  }
+
+  bool _getIsActive(dynamic data) {
+    if (data is Map) {
+      return data['is_active'] == 1 ||
+          data['is_active'] == true ||
+          data['is_active'] == '1';
+    }
+    if (data is ItemCategory) return data.isActive;
+    return true;
   }
 
   Map<String, TextEditingController> _buildControllers() {
     final map = <String, TextEditingController>{};
     final fields = _getFields();
     for (final f in fields) {
-      final val = widget.editData != null ? _getFieldValue(widget.editData, f.key) : '';
+      final val = widget.editData != null
+          ? _getFieldValue(widget.editData, f.key)
+          : '';
       map[f.key] = TextEditingController(text: val?.toString() ?? '');
     }
     return map;
@@ -42,33 +60,54 @@ class _EntityFormPageState extends State<EntityFormPage> {
 
   List<_FieldDef> _getFields() {
     switch (widget.entity) {
-      case 'categories': return [
+      case 'categories':
+        return [
           _FieldDef('name', 'Name', Icons.label),
-          _FieldDef('description', 'Description', Icons.description, multiline: true),
+          _FieldDef(
+            'description',
+            'Description',
+            Icons.description,
+            multiline: true,
+          ),
         ];
-      case 'units': return [
+      case 'units':
+        return [
           _FieldDef('name', 'Name', Icons.straighten),
-          _FieldDef('abbreviation', 'Abbreviation (e.g. kg, pcs)', Icons.text_fields),
+          _FieldDef(
+            'abbreviation',
+            'Abbreviation (e.g. kg, pcs)',
+            Icons.text_fields,
+          ),
         ];
-      case 'brands': return [
+      case 'brands':
+        return [
           _FieldDef('name', 'Name', Icons.branding_watermark),
-          _FieldDef('description', 'Description', Icons.description, multiline: true),
+          _FieldDef(
+            'description',
+            'Description',
+            Icons.description,
+            multiline: true,
+          ),
         ];
-      case 'customers': return [
+      case 'customers':
+        return [
           _FieldDef('name', 'Name', Icons.person),
           _FieldDef('phone', 'Phone', Icons.phone),
           _FieldDef('email', 'Email', Icons.email),
           _FieldDef('address', 'Address', Icons.location_on, multiline: true),
         ];
-      case 'warehouses': return [
+      case 'warehouses':
+        return [
           _FieldDef('name', 'Name', Icons.warehouse),
           _FieldDef('address', 'Address', Icons.location_on, multiline: true),
         ];
-      case 'locations': return [
+      case 'locations':
+        return [
           _FieldDef('name', 'Name', Icons.location_on),
           _FieldDef('code', 'Code / Aisle', Icons.qr_code),
         ];
-      default: return [];
+      default:
+        return [];
     }
   }
 
@@ -100,45 +139,83 @@ class _EntityFormPageState extends State<EntityFormPage> {
     for (final entry in _controllers.entries) {
       data[entry.key] = entry.value.text.trim();
     }
+    data['is_active'] = _isActive ? 1 : 0;
 
     bool success;
     if (widget.editData != null) {
       success = await context.read<InventoryProvider>().updateEntity(
-        widget.entity, data, widget.editData.id!,
+        widget.entity,
+        data,
+        widget.editData.id!,
       );
     } else {
       success = await context.read<InventoryProvider>().createEntity(
-        widget.entity, data,
+        widget.entity,
+        data,
       );
     }
 
     if (mounted) {
       setState(() => _saving = false);
+      final t = AppLocalizations.of(context);
       if (success) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(widget.editData != null ? '${widget.title} updated' : '${widget.title} created'),
-            backgroundColor: AppTheme.successColor,
-          ),
+        _showToast(
+          context,
+          '${widget.title} ${widget.editData != null ? t.translate('updated') : t.translate('created')}',
+          AppTheme.successColor,
         );
         Navigator.pop(context, true);
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(context.read<InventoryProvider>().error ?? 'Failed to save'),
-            backgroundColor: AppTheme.errorColor,
-          ),
+        _showToast(
+          context,
+          context.read<InventoryProvider>().error ??
+              t.translate('failedToSave'),
+          AppTheme.errorColor,
         );
       }
     }
   }
 
+  void _showToast(BuildContext context, String message, Color color) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            Icon(
+              color == AppTheme.successColor
+                  ? Icons.check_circle_rounded
+                  : Icons.error_rounded,
+              color: Colors.white,
+              size: 20,
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                message,
+                style: const TextStyle(fontWeight: FontWeight.w500),
+              ),
+            ),
+          ],
+        ),
+        backgroundColor: color,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        margin: const EdgeInsets.all(16),
+        duration: const Duration(seconds: 3),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final fields = _getFields();
+    final isCategory = widget.entity == 'categories';
+    final t = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: Text('${widget.editData != null ? 'Edit' : 'New'} ${widget.title}'),
+        title: Text(
+          '${widget.editData != null ? 'Edit ' : 'New '}${widget.title}',
+        ),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
@@ -146,21 +223,82 @@ class _EntityFormPageState extends State<EntityFormPage> {
           key: _formKey,
           child: Column(
             children: [
-              ...fields.map((f) => Padding(
-                padding: const EdgeInsets.only(bottom: 16),
-                child: TextFormField(
-                  controller: _controllers[f.key],
-                  maxLines: f.multiline ? 3 : 1,
-                  style: const TextStyle(color: Colors.white),
-                  decoration: InputDecoration(
-                    labelText: f.label,
-                    prefixIcon: Icon(f.icon),
+              ...fields.map(
+                (f) => Padding(
+                  padding: const EdgeInsets.only(bottom: 16),
+                  child: TextFormField(
+                    controller: _controllers[f.key],
+                    maxLines: f.multiline ? 3 : 1,
+                    style: const TextStyle(color: Colors.white),
+                    decoration: InputDecoration(
+                      labelText: f.label,
+                      prefixIcon: Icon(f.icon),
+                    ),
+                    validator: f.key == 'name'
+                        ? (v) => v == null || v.trim().isEmpty
+                              ? 'Name is required'
+                              : null
+                        : null,
                   ),
-                  validator: f.key == 'name'
-                      ? (v) => v == null || v.trim().isEmpty ? 'Name is required' : null
-                      : null,
                 ),
-              )),
+              ),
+              if (isCategory) ...[
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.06),
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 4,
+                  ),
+                  child: SwitchListTile(
+                    title: Text(
+                      t.translate('active'),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    subtitle: Text(
+                      _isActive
+                          ? t.translate('categoryActiveSubtitle')
+                          : t.translate('categoryInactiveSubtitle'),
+                      style: TextStyle(
+                        color: Colors.white.withValues(alpha: 0.5),
+                        fontSize: 12,
+                      ),
+                    ),
+                    value: _isActive,
+                    activeTrackColor: AppTheme.successColor.withValues(
+                      alpha: 0.4,
+                    ),
+                    activeThumbColor: AppTheme.successColor,
+                    onChanged: (v) => setState(() => _isActive = v),
+                    contentPadding: EdgeInsets.zero,
+                    secondary: Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color:
+                            (_isActive ? AppTheme.successColor : Colors.white38)
+                                .withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Icon(
+                        _isActive
+                            ? Icons.check_circle_rounded
+                            : Icons.cancel_rounded,
+                        color: _isActive
+                            ? AppTheme.successColor
+                            : Colors.white38,
+                        size: 20,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 8),
+              ],
               const SizedBox(height: 16),
               SizedBox(
                 width: double.infinity,
@@ -168,7 +306,11 @@ class _EntityFormPageState extends State<EntityFormPage> {
                 child: ElevatedButton(
                   onPressed: _saving ? null : _save,
                   child: _saving
-                      ? const SizedBox(width: 22, height: 22, child: CircularProgressIndicator(strokeWidth: 2.5))
+                      ? const SizedBox(
+                          width: 22,
+                          height: 22,
+                          child: CircularProgressIndicator(strokeWidth: 2.5),
+                        )
                       : Text(widget.editData != null ? 'Update' : 'Create'),
                 ),
               ),

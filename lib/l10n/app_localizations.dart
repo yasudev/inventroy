@@ -8,7 +8,8 @@ class AppLocalizations {
   static const Locale en = Locale('en');
   static const Locale am = Locale('am');
 
-  static bool isSupported(Locale locale) => _supportedLocales.contains(locale.languageCode);
+  static bool isSupported(Locale locale) =>
+      _supportedLocales.contains(locale.languageCode);
 
   static AppLocalizations of(BuildContext context) {
     return Localizations.of<AppLocalizations>(context, AppLocalizations)!;
@@ -68,6 +69,20 @@ class AppLocalizations {
       'manageSales': 'Manage your sales and inventory',
       'appTitle': 'Inventory App',
       'inventoryItems': 'Manage your products and stock levels',
+      'add': 'Add',
+      'active': 'Active',
+      'inactive': 'Inactive',
+      'categoryActiveSubtitle': 'Category is active and visible',
+      'categoryInactiveSubtitle': 'Category is disabled',
+      'activated': 'activated',
+      'deactivated': 'deactivated',
+      'deleted': 'deleted',
+      'failedToSave': 'Failed to save',
+      'failedToUpdateStatus': 'Failed to update status',
+      'failedToDelete': 'Failed to delete',
+      'created': 'created',
+      'updated': 'updated',
+      'search': 'Search',
     },
     'am': {
       'appName': 'የኢንቬንቶሪ አስተዳደር',
@@ -122,11 +137,27 @@ class AppLocalizations {
       'manageSales': 'ሽያጮችዎን እና ኢንቬንቶሪዎን ያስተዳድሩ',
       'appTitle': 'የኢንቬንቶሪ መተግበሪያ',
       'inventoryItems': 'ምርቶችን እና የክምችት ደረጃዎችን ያስተዳድሩ',
+      'add': 'ጨምር',
+      'active': 'ንቁ',
+      'inactive': 'የማይንቀሳቀስ',
+      'categoryActiveSubtitle': 'ምድቡ ንቁ እና የሚታይ ነው',
+      'categoryInactiveSubtitle': 'ምድቡ አይታይም',
+      'activated': 'ነቅቷል',
+      'deactivated': 'ተቋርጧል',
+      'deleted': 'ተሰርዟል',
+      'failedToSave': 'ማስቀመጥ አልተቻለም',
+      'failedToUpdateStatus': 'ሁኔታውን ማዘመን አልተቻለም',
+      'failedToDelete': 'መሰረዝ አልተቻለም',
+      'created': 'ተፈጥሯል',
+      'updated': 'ተዘምኗል',
+      'search': 'ፈልግ',
     },
   };
 
   String translate(String key) {
-    return _localizedValues[locale.languageCode]?[key] ?? _localizedValues['en']?[key] ?? key;
+    return _localizedValues[locale.languageCode]?[key] ??
+        _localizedValues['en']?[key] ??
+        key;
   }
 
   static final AppLocalizationsDelegate delegate = AppLocalizationsDelegate();
@@ -137,7 +168,8 @@ class AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
   bool isSupported(Locale locale) => AppLocalizations.isSupported(locale);
 
   @override
-  Future<AppLocalizations> load(Locale locale) async => AppLocalizations(locale);
+  Future<AppLocalizations> load(Locale locale) async =>
+      AppLocalizations(locale);
 
   @override
   bool shouldReload(AppLocalizationsDelegate old) => false;
